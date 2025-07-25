@@ -38,7 +38,7 @@ What we can discuss is the performance as I do not know how exactly the data is 
 
 If we read still the same data again and again, this would not work due to the many duplicate API calls under the hood. So this works only when we have new data every time, with just few items, which were already processed before.
 
-Otherwise we would need to filter the existing data out from the final dataframe first and then do the API calls later, only on top of the the new data, which is not yet in the table.
+Otherwise we would need to filter the existing data out from the final dataframe first and then do the API calls later, only on top of the new data, which is not yet in the table.
 
 If there is lot of data, calling the API is not much efficient. Then it is better to somehow pre-generate the hashes in advance and then join the final data with this "hashed" table. Or to create the hash function internally as a Scala UDF etc.
 
