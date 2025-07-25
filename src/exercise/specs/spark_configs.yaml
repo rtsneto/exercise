@@ -1,0 +1,7 @@
+spark-small:
+  spark.master: local[*]
+  spark.executor.cores: 1
+  spark.executor.memory: 1g
+  spark.jars.packages: io.delta:delta-spark_2.13:4.0.0
+  spark.sql.extensions: io.delta.sql.DeltaSparkSessionExtension
+  spark.sql.catalog.spark_catalog: org.apache.spark.sql.delta.catalog.DeltaCatalog

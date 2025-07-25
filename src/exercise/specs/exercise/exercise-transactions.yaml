@@ -1,0 +1,74 @@
+transformation-csv:
+  name: exercise-transactions
+  input_tables:
+    - name: CLAIMS
+      path: data/bronze/claims
+      schema: |
+        SOURCE_SYSTEM STRING,
+        CLAIM_ID STRING,
+        CONTRACT_SOURCE_SYSTEM STRING,
+        CONTRAT_ID INT,
+        CLAIM_TYPE STRING,
+        DATE_OF_LOSS DATE,
+        AMOUNT DECIMAL(16, 5),
+        CREATION_DATE TIMESTAMP
+    - name: CONTRACTS
+      path: data/bronze/contracts
+      schema: |
+        SOURCE_SYSTEM STRING,
+        CONTRACT_ID INT,
+        CONTRACT_TYPE STRING,
+        INSURED_PERIOD_FROM DATE,
+        INSUDRED_PERIOD_TO DATE,
+        CREATION_DATE TIMESTAMP
+  output_table: data/silver/transactions
+  output_schema: |
+    CONTRACT_SOURCE_SYSTEM STRING,
+    CONTRACT_SOURCE_SYSTEM_ID BIGINT,
+    SOURCE_SYSTEM_ID INT,
+    TRANSACTION_TYPE STRING,
+    TRANSACTION_DIRECTION STRING,
+    CONFORMED_VALUE DECIMAL(16, 5),
+    BUSINESS_DATE DATE,
+    CREATION_DATE TIMESTAMP,
+    SYSTEM_TIMESTAMP TIMESTAMP,
+    NSE_ID STRING
+  write_mode: merge
+  merge_columns:
+    - CONTRACT_SOURCE_SYSTEM
+    - CONTRACT_SOURCE_SYSTEM_ID
+    - SOURCE_SYSTEM_ID
+  sql_query: |
+    WITH transactions AS (
+      SELECT
+        COALESCE(REPLACE(CONTRACTS.SOURCE_SYSTEM, 'Contract_SR_', ''), 'Europe 3') AS CONTRACT_SOURCE_SYSTEM,
+        CONTRACTS.CONTRACT_ID AS CONTRACT_SOURCE_SYSTEM_ID,
+        SPLIT(CLAIMS.CLAIM_ID, '_')[1] AS SOURCE_SYSTEM_ID,
+        CASE
+          WHEN CLAIMS.CLAIM_TYPE = '1' THEN 'Private'
+          WHEN CLAIMS.CLAIM_TYPE = '2' THEN 'Corporate'
+          ELSE 'Unknown'
+        END AS TRANSACTION_TYPE,
+        CASE
+          WHEN SPLIT(CLAIMS.CLAIM_ID, '_')[0] = 'CL' THEN 'COINSURANCE'
+          WHEN SPLIT(CLAIMS.CLAIM_ID, '_')[0] = 'RX' THEN 'REINSURANCE'
+          ELSE 'UNKNOWN'
+        END AS TRANSACTION_DIRECTION,
+        CLAIMS.AMOUNT AS CONFORMED_VALUE,
+        DATE_FORMAT(CLAIMS.DATE_OF_LOSS, 'yyyy-MM-dd') AS BUSINESS_DATE,
+        DATE_FORMAT(CLAIMS.CREATION_DATE, 'yyyy-MM-dd HH:mm:ss') AS CREATION_DATE,
+        CURRENT_TIMESTAMP() AS SYSTEM_TIMESTAMP,
+        GENERATE_NSE_ID(CLAIMS.CLAIM_ID) AS NSE_ID
+      FROM CONTRACTS
+      INNER JOIN CLAIMS ON CLAIMS.CONTRAT_ID = CONTRACTS.CONTRACT_ID
+    )
+    SELECT *
+    FROM transactions
+    WHERE NSE_ID IS NOT NULL
+  cluster_by:
+    - CONTRACT_SOURCE_SYSTEM
+    - CONTRACT_SOURCE_SYSTEM_ID
+    - SOURCE_SYSTEM_ID
+  udfs:
+    - GENERATE_NSE_ID
+  spark_config: spark-small

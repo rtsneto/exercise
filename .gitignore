@@ -1,0 +1,12 @@
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+
+# Data folders
+artifacts/
+data/
+logs/
+
+# Pre commit hooks
+.ruff_cache/

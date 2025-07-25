@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "exercise"
+version = "0.1.0"
+description = "Exercise"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+delta-spark = "4.0.0"
+loguru = "0.7.2"
+pandas = "2.3.1"
+pyarrow = "21.0.0"
+pydantic = "2.11.7"
+pyspark = "4.0.0"
+python = ">=3.13,<4"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "4.2.0"
+pytest = "8.4.1"
+
+[tool.ruff]
+line-length = 90
+select = ["F401", "I"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
