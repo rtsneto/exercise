@@ -22,10 +22,14 @@ from exercise.plugins.utils import (
 )
 
 
-@pytest.mark.parametrize("spec_file", [
-    fname for fname in os.listdir(os.path.join(cfg.SPECS_PATH, "exercise"))
-    if fname.endswith(".yaml")
-])
+@pytest.mark.parametrize(
+    "spec_file",
+    [
+        fname
+        for fname in os.listdir(os.path.join(cfg.SPECS_PATH, "exercise"))
+        if fname.endswith(".yaml")
+    ],
+)
 def test_load_and_validate_spec_for_all_yaml(spec_file):
     """Test that all YAML spec files can be loaded and validated"""
     spec_name = spec_file.replace(".yaml", "")
@@ -34,13 +38,19 @@ def test_load_and_validate_spec_for_all_yaml(spec_file):
 
     assert result is not None, f"Failed to load and validate spec: {spec_name}"
     assert spec_type in cfg.SPEC_MODELS, f"Spec type {spec_type} not in SPEC_MODELS"
-    assert isinstance(spec_obj, cfg.SPEC_MODELS[spec_type]), f"Spec object is not instance of expected model for {spec_type}"
+    assert isinstance(
+        spec_obj, cfg.SPEC_MODELS[spec_type]
+    ), f"Spec object is not instance of expected model for {spec_type}"
 
 
-@pytest.mark.parametrize("spec_file", [
-    fname for fname in os.listdir(os.path.join(cfg.SPECS_PATH, "exercise"))
-    if fname.endswith(".yaml")
-])
+@pytest.mark.parametrize(
+    "spec_file",
+    [
+        fname
+        for fname in os.listdir(os.path.join(cfg.SPECS_PATH, "exercise"))
+        if fname.endswith(".yaml")
+    ],
+)
 def test_load_spec_config_for_all_yaml(spec_file):
     """Test that all YAML spec files can be loaded correctly"""
     spec_name = spec_file.replace(".yaml", "")
@@ -50,10 +60,14 @@ def test_load_spec_config_for_all_yaml(spec_file):
     assert isinstance(result, dict), f"Spec {spec_name} did not return a dict"
 
 
-@pytest.mark.parametrize("spec_file", [
-    fname for fname in os.listdir(os.path.join(cfg.SPECS_PATH, "exercise"))
-    if fname.endswith(".yaml")
-])
+@pytest.mark.parametrize(
+    "spec_file",
+    [
+        fname
+        for fname in os.listdir(os.path.join(cfg.SPECS_PATH, "exercise"))
+        if fname.endswith(".yaml")
+    ],
+)
 def test_validate_spec_for_all_yaml(spec_file):
     """Test that all YAML spec files are valid"""
     spec_name = spec_file.replace(".yaml", "")
@@ -72,7 +86,9 @@ def test_create_spark_session_and_register_udf():
     register_spark_udfs(spark, [udf_to_register])
     all_funcs = spark.catalog.listFunctions()
 
-    assert any(func.name == udf_to_register for func in all_funcs), f"UDF {udf_to_register} not registered in Spark session"
+    assert any(
+        func.name == udf_to_register for func in all_funcs
+    ), f"UDF {udf_to_register} not registered in Spark session"
 
 
 def test_load_delta_table_empty(tmp_path):
@@ -91,6 +107,7 @@ def test_load_delta_table_empty(tmp_path):
     assert df.count() == 0
     assert dict(df.dtypes) == {"id": "int", "name": "string"}
 
+
 def test_load_delta_table_non_empty(tmp_path):
     """Test that load_delta_table reads an existing delta table with data"""
     spark = create_spark_session(load_spark_config("spark-small"))
@@ -103,9 +120,10 @@ def test_load_delta_table_non_empty(tmp_path):
     # Create new delta table
     target_data = [(1, "aaa"), (2, "bbb")]
     (
-        spark
-        .createDataFrame(target_data, schema=schema)
-        .write.format("delta").mode("overwrite").save(table_path)
+        spark.createDataFrame(target_data, schema=schema)
+        .write.format("delta")
+        .mode("overwrite")
+        .save(table_path)
     )
 
     # Load delta table
@@ -117,15 +135,8 @@ def test_load_delta_table_non_empty(tmp_path):
 
     # Compare the loaded dataframe with the expected one
     assertDataFrameEqual(
-        result_df,
-        expected_df,
-        checkRowOrder=False,
-        ignoreColumnOrder=True
+        result_df, expected_df, checkRowOrder=False, ignoreColumnOrder=True
     )
-
-
-
-
 
 
 def test_write_merge_dataframe(tmp_path):
@@ -167,8 +178,5 @@ def test_write_merge_dataframe(tmp_path):
 
     # Compare the result dataframe with the expected one
     assertDataFrameEqual(
-        result_df,
-        expected_df,
-        checkRowOrder=False,
-        ignoreColumnOrder=True
+        result_df, expected_df, checkRowOrder=False, ignoreColumnOrder=True
     )

@@ -11,9 +11,9 @@ from exercise.config.main import SPARK_CONFIG_PATH
 
 def test_spark_config_file_exists():
     """Test that the Spark config file exists"""
-    assert os.path.exists(SPARK_CONFIG_PATH), (
-        f"Spark config file not found: {SPARK_CONFIG_PATH}"
-    )
+    assert os.path.exists(
+        SPARK_CONFIG_PATH
+    ), f"Spark config file not found: {SPARK_CONFIG_PATH}"
 
 
 def test_spark_config_file_is_valid_yaml():

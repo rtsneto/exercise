@@ -9,7 +9,9 @@ from exercise.plugins.transformations.csv_transformation.models import (
 )
 
 
-def process_csv_transformation(spark: SparkSession, spec: TransformationCSVSpec) -> None:
+def process_csv_transformation(
+    spark: SparkSession, spec: TransformationCSVSpec
+) -> None:
     """Process CSV transformation using Spark"""
     # Read input tables
     for table in spec.input_tables:
